@@ -1,0 +1,224 @@
+package cattlefarm;
+
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.JTextField;
+import javax.swing.table.DefaultTableModel;
+
+
+public class CattleFarm {
+
+    ArrayList<Cattle> cattlelist = new ArrayList<Cattle>();
+    String header[] = new String[]{"cattleID", "Weight(Kg)", "Breed Type", "Date Registered"};
+    DefaultTableModel dtm = new DefaultTableModel(header, 1);
+
+    CattleFarm() {
+
+        JFrame frame = new JFrame("Cattle's Farm Information System");
+        frame.setSize(550, 500);
+
+        JLabel jlabel = new JLabel("Cattle ID");
+        jlabel.setBounds(20, 10, 70, 20);
+        frame.add(jlabel);
+
+        JLabel jlabela = new JLabel("Weight(Kg)");
+        jlabela.setBounds(20, 28, 75, 20);
+        frame.add(jlabela);
+
+        JLabel jlabelb = new JLabel("Breed Type");
+        jlabelb.setBounds(20, 50, 100, 20);
+        frame.add(jlabelb);
+        
+        JLabel jlabelc = new JLabel("Date Registered");
+        jlabelc.setBounds(20, 70, 130, 20);
+        frame.add(jlabelc);
+
+        JTextField jtfcattleID = new JTextField();
+        jtfcattleID.setBounds(135, 10, 150, 20);
+        frame.add(jtfcattleID);
+
+        JTextField jtfweight = new JTextField();
+        jtfweight.setBounds(135, 30, 150, 20);
+        frame.add(jtfweight);
+
+        JTextField jtfbreedType = new JTextField();
+        jtfbreedType.setBounds(135, 50, 150, 20);
+        frame.add(jtfbreedType);
+        
+        JTextField jtfdateRegistered = new JTextField();
+        jtfdateRegistered.setBounds(135, 70, 150, 20);
+        frame.add(jtfdateRegistered);
+
+        JButton jbuttoninsert = new JButton("INSERT");
+        jbuttoninsert.setBounds(150, 100, 135, 20);
+        frame.add(jbuttoninsert);
+
+
+        JTable jtable = new JTable();
+        jtable.setBounds(50, 140, 250, 250);
+        frame.add(jtable);
+        jtable.setModel(dtm);
+        JScrollPane scrollPane = new JScrollPane(jtable);
+        scrollPane.setBounds(50, 140, 450, 250);
+        frame.add(scrollPane);
+        jtable.getColumnModel().getColumn(0).setPreferredWidth(300);
+        jtable.getColumnModel().getColumn(1).setPreferredWidth(300);
+        jtable.getColumnModel().getColumn(2).setPreferredWidth(300);
+        jtable.getColumnModel().getColumn(3).setPreferredWidth(300);
+    
+       
+
+        jbuttoninsert.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+                String cattleID = jtfcattleID.getText();
+                String weight = jtfweight.getText();
+                String breedType = jtfbreedType.getText();
+                String dateRegistered = jtfdateRegistered.getText();
+                if (breedType.length() < 5) {
+                    JOptionPane.showMessageDialog(frame, "Please insert Breed Type!!!");
+                    return;
+                }
+                if (!isInteger(cattleID)) {
+                    JOptionPane.showMessageDialog(frame, "Cattle ID should only contain integer!!!");
+                    return;
+                }
+
+                Cattle cattle = new Cattle(cattleID, weight, breedType, dateRegistered);
+                cattlelist.add(cattle);
+                writeData();
+            }
+        });
+
+      
+        frame.setResizable(false);
+        frame.setLocationRelativeTo(null);
+        frame.setLayout(null);
+        frame.setVisible(true);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    }
+
+    public static void main(String[] args) {
+      
+        CattleFarm cattlefarm = new CattleFarm();
+
+    }
+
+    private CattleFarm(String string, String string0, String string1) {
+        throw new UnsupportedOperationException("Not supported yet."); 
+    }
+     void readData(Cattle CattleFarm) { 
+        try {
+            File file = new File("data.txt"); 
+            file.createNewFile();
+            FileReader f = new FileReader("data.txt");
+            StringBuffer sb = new StringBuffer();
+            while (f.ready()) {
+                char c = (char) f.read();
+                if (c == '-') {
+                    System.out.println(sb);
+                    String cattlearray[] = sb.toString().split(",");
+                    CattleFarm cattle = new CattleFarm(cattlearray[0], cattlearray[1], cattlearray[2]);
+                    cattlelist.add(CattleFarm);
+                    sb = new StringBuffer();
+                } else {
+                    sb.append(c);
+                }
+            }
+            dtm.setRowCount(0); 
+            for (int i = 0; i < cattlelist.size(); i++) {
+                Object[] objs = {cattlelist.get(i).getCattleID(), cattlelist.get(i).getWeight(), cattlelist.get(i).getBreedType(),cattlelist.get(i).getDateRegistered()};
+                dtm.addRow(objs);
+            }
+        } catch (IOException e) {
+        }
+    }
+
+    private void writeData() { 
+        try (FileWriter f = new FileWriter("data.txt")) {
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < cattlelist.size(); i++) {
+                sb.append(cattlelist.get(i).getCattleID() + "," + cattlelist.get(i).getWeight() + "," + cattlelist.get(i).getBreedType() + "-");
+            }
+            f.write(sb.toString());
+            f.close();
+        } catch (IOException e) {
+            return;
+        }
+        dtm.setRowCount(0);
+        for (int i = 0; i < cattlelist.size(); i++) {
+            Object[] objs = {cattlelist.get(i).getCattleID(), cattlelist.get(i).getWeight(), cattlelist.get(i).getBreedType(), cattlelist.get(i).getDateRegistered()};
+            dtm.addRow(objs);
+        }
+    }
+
+    public boolean isInteger(String str) {
+        if (str == null) {
+            return false;
+        }
+        int length = str.length();
+        if (length == 0) {
+            return false;
+        }
+        int i = 0;
+        if (str.charAt(0) == '-') {
+            if (length == 1) {
+                return false;
+            }
+            i = 1;
+        }
+        for (; i < length; i++) {
+            char c = str.charAt(i);
+            if (c < '0' || c > '9') {
+                return false;
+            }
+        }
+        return true;
+    }
+}
+
+
+
+package cattlefarm;
+
+
+public class Cattle {
+    private String cattleID;
+    String weight, breedType, dateRegistered;
+    
+    public Cattle(String cattleID, String weight, String breedType, String dateRegistered){
+        this.cattleID = cattleID;
+        this.weight = weight;
+        this.breedType = breedType;
+        this.dateRegistered = dateRegistered;
+    }
+    
+    String getCattleID(){
+        return cattleID;
+    }
+    String getWeight(){
+        return weight;
+    }
+    String getBreedType(){
+        return breedType;
+    }
+    String getDateRegistered(){
+        return dateRegistered;
+    }
+    void setWeight(String weight){
+        this.weight = weight;
+    }
+}
